@@ -4,7 +4,21 @@ vim.pack.add { 'https://github.com/mfussenegger/nvim-lint' }
 
 local lint = require 'lint'
 lint.linters_by_ft = {
-  markdown = { 'markdownlint' }, -- Make sure to install `markdownlint` via mason / npm
+  markdown = { 'markdownlint' },
+  groovy = { 'npm-groovy-lint' },
+}
+
+lint.linters['npm-groovy-lint'] = {
+  cmd = 'npm-groovy-lint',
+  args = { '--no-insight', '--output', 'txt', '%:p' },
+  stdin = false,
+  stream = 'stdout',
+  ignore_exitcode = true,
+  parser = require('lint.parser').from_pattern(
+    '(%S+)%s+(%d+)%s+(%S+)%s+(.+)',
+    { 'file', 'lnum', 'severity', 'message' },
+    { severity = { info = vim.diagnostic.severity.INFO, warning = vim.diagnostic.severity.WARN, error = vim.diagnostic.severity.ERROR } }
+  ),
 }
 
 -- To allow other plugins to add linters to require('lint').linters_by_ft,
